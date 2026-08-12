@@ -28,7 +28,7 @@ export default defineNuxtConfig({
     "@nuxtjs/color-mode",
     "@vueuse/nuxt",
     "nuxt-lodash",
-    // ✅ 关键：彻底移除 @nuxtjs/i18n，解决 Cloudflare 500
+    // ✅ 已彻底移除 @nuxtjs/i18n
   ].concat(siteConfig.platform === "cloudflare" ? "@nuxthub/core" : ""),
 
   ssr: false,
@@ -76,12 +76,18 @@ export default defineNuxtConfig({
 
   css: ["~/style/main.scss", "~/style/animate.scss"],
 
+  // ✅【关键修复】密码放进 public，Cloudflare 才能读到
   runtimeConfig: {
-    apiUrl: process.env.API_URL || "https://api.uptimerobot.com/v2/",
+    // 私有（ssr:false 基本用不到）
     apiKey: process.env.API_KEY,
-    sitePassword: process.env.SITE_PASSWORD,
     siteSecretKey: process.env.SITE_SECRE_KEY || "site-status",
-    public: siteConfig,
+
+    // ✅ 公共（前端 + API 都能读）
+    public: {
+      ...siteConfig,
+      apiUrl: process.env.API_URL || "https://api.uptimerobot.com/v2/",
+      sitePassword: process.env.SITE_PASSWORD || "", // ✅ 登录密码
+    },
   },
 
   devServer: { port: 8566 },
