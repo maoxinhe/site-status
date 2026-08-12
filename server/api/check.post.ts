@@ -1,34 +1,36 @@
 import { verifyJwt } from "../utils/jwt";
 
 export default defineEventHandler(
-  async (
-    event,
-  ): Promise<{
-    code: 200 | 500 | 401;
-    message: string;
-  }> => {
+  async (event): Promise<{ code: 200 | 500 | 401; message: string }> => {
     try {
       const config = useRuntimeConfig();
-      const { sitePassword, siteSecretKey } = config;
+
+      // ✅ 关键修复：从 public 里读
+      const { sitePassword, siteSecretKey } = config.public;
+
+      // 如果没设密码，直接放行
       if (!sitePassword || !siteSecretKey) {
         return {
           code: 200,
           message: "No password is currently set, no need to log in",
         };
       }
+
       // 获取 token
       const token = getCookie(event, "authToken");
       if (!token) {
         setResponseStatus(event, 401);
         return { code: 401, message: "User not authenticated" };
       }
+
       // 验证 Token
       const isLogin = await verifyJwt(token);
       if (!isLogin) {
         setResponseStatus(event, 401);
         return { code: 401, message: "Invalid or expired token" };
       }
-      // 验证通过
+
+      // ✅ 验证通过
       return { code: 200, message: "User is authenticated" };
     } catch (error) {
       console.error("Error during authentication check:", error);
