@@ -59,3 +59,123 @@ body {
 .n-back-top {
   z-index: 9999;
 }
+/* ========================================
+   新增：毛玻璃 + 粉色渐变字体效果
+   (利用现有 CSS 变量，保持风格一致)
+   ======================================== */
+
+/* ----- 1. 毛玻璃效果类 ----- */
+.glass-card {
+  /* 利用你现有的背景色变量，增加透明度和毛玻璃效果 */
+  background: rgba(var(--cover-fill-color, 247, 247, 247), 0.6) !important;
+  backdrop-filter: blur(15px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(15px) saturate(180%) !important;
+  /* 边框使用现有边框颜色变量 */
+  border: 1px solid var(--mian-border-color, rgba(255, 255, 255, 0.2)) !important;
+  box-shadow: 0 8px 32px 0 var(--main-box-shadow, rgba(0, 0, 0, 0.1)) !important;
+}
+
+/* 深色模式下的毛玻璃 (利用现有的深色背景变量) */
+.dark-mode .glass-card {
+  background: rgba(var(--cover-fill-color, 36, 36, 36), 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ----- 2. 让所有卡片直接变成毛玻璃 (自动应用) ----- */
+/* 作用于项目中常见的卡片类，无需手动修改每个组件 */
+.n-card,
+.monitor-item,
+.status-item,
+.list-item,
+.site-card {
+  background: rgba(var(--cover-fill-color, 247, 247, 247), 0.55) !important;
+  backdrop-filter: blur(12px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
+  border: 1px solid var(--mian-border-color, rgba(255, 255, 255, 0.15)) !important;
+  box-shadow: 0 8px 20px var(--main-box-shadow, rgba(0, 0, 0, 0.06)) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* 卡片悬停效果 (增强毛玻璃互动感) */
+.n-card:hover,
+.monitor-item:hover,
+.status-item:hover,
+.list-item:hover,
+.site-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px var(--main-box-shadow, rgba(0, 0, 0, 0.15)) !important;
+}
+
+/* 深色模式下的卡片 */
+.dark-mode .n-card,
+.dark-mode .monitor-item,
+.dark-mode .status-item,
+.dark-mode .list-item,
+.dark-mode .site-card {
+  background: rgba(var(--cover-fill-color, 36, 36, 36), 0.6) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ----- 3. 粉色渐变字体类 ----- */
+.gradient-text-pink {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+/* 粉紫渐变 (更活泼) */
+.gradient-text-purple-pink {
+  background: linear-gradient(135deg, #4facfe 0%, #f093fb 50%, #f5576c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+/* ----- 4. 让页面主标题自动变粉 (直接应用) ----- */
+/* 如果你的页面标题有特定类名，可以在这里直接指定 */
+.page-title,
+.header-title,
+h1.title,
+.n-h1 {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  font-weight: 700 !important;
+}
+
+/* ----- 5. 让统计数字变粉 (如在线率) ----- */
+.status-number,
+.stat-value,
+.n-statistic-value {
+  background: linear-gradient(135deg, #4facfe 0%, #f093fb 50%, #f5576c 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  font-weight: 700 !important;
+}
+
+/* ----- 6. 站点状态图标/圆点发光效果 (可选) ----- */
+.status-dot,
+.n-badge-dot {
+  box-shadow: 0 0 12px rgba(245, 87, 108, 0.4);
+}
+
+/* 不同状态的发光颜色 (利用你现有的状态颜色变量) */
+.status-dot.success,
+.n-badge-dot.success {
+  box-shadow: 0 0 12px var(--normal-color, #3bd672);
+}
+.status-dot.error,
+.n-badge-dot.error {
+  box-shadow: 0 0 12px var(--error-color, #de484a);
+}
+.status-dot.warning,
+.n-badge-dot.warning {
+  box-shadow: 0 0 12px var(--warn-color, #f39c12);
+}
