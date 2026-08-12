@@ -57,7 +57,7 @@ export default defineNuxtConfig({
         },
         {
           name: "theme-color",
-          content: "#ffffff",
+          content: "#ffd6e8",
         },
       ],
       link: [
@@ -71,6 +71,13 @@ export default defineNuxtConfig({
           rel: "mask-icon",
           href: "/images/icons/normal/maskable-icon-512x512.png",
           color: "#ffffff",
+        },
+        // ✅ 奶酪体手写字体（Google Fonts 偷懒方案）
+        { rel: "preconnect", href: "https://fonts.googleapis.com" },
+        { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" },
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Ma+Shan+Zheng&display=swap",
         },
         // manifest
         process.env.NODE_ENV !== "development"
@@ -155,7 +162,7 @@ export default defineNuxtConfig({
       name: siteConfig.siteTitle,
       short_name: siteConfig.siteDescription,
       description: siteConfig.siteDescription,
-      theme_color: "#ffffff",
+      theme_color: "#ffd6e8",
       icons: [
         {
           src: "/images/icons/normal/pwa-64x64.png",

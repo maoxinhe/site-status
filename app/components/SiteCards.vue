@@ -1,304 +1,300 @@
-<!-- 站点数据卡片 -->
-<template>
-  <Transition name="fade" mode="out-in">
-    <div v-if="!isEmpty(siteData)" class="site-cards">
-      <n-card
-        v-for="(site, index) in siteData"
-        :key="index"
-        :style="{ animationDelay: `${index * 0.1}s` }"
-        class="site-item"
-        hoverable
-      >
-        <!-- 信息 -->
-        <n-flex class="meta" justify="space-between">
-          <n-flex :size="8" class="title" align="center">
-            <n-text class="site-name">{{ site.name }}</n-text>
-            <n-popover>
-              <template #trigger>
-                <n-tag :bordered="false" size="small" round>
-                  {{ siteTypeMap[site.type]?.tag || "HTTP" }} /
-                  {{ formatInterval(site?.interval) }}
-                </n-tag>
-              </template>
-              <n-text>
-                {{
-                  $t("card.type.tip", {
-                    interval: formatInterval(site?.interval) || "30s",
-                    type: siteTypeMap[site.type]?.text,
-                  })
-                }}
-              </n-text>
-            </n-popover>
-            <!-- 跳转 -->
-            <n-button
-              v-if="site?.url"
-              :focusable="false"
-              size="tiny"
-              tertiary
-              round
-              @click="jumpLink(site.url)"
-            >
-              <template #icon>
-                <Icon name="icon:link" />
-              </template>
-            </n-button>
-          </n-flex>
-          <n-flex
-            :style="{
-              '--bg-color': `var(--${siteStatusMap[site.status]?.type || 'unknown'}-color)`,
-            }"
-            class="status"
-            align="center"
-          >
-            <div v-if="site.status !== 0" class="point" />
-            <Icon v-else name="icon:pause" />
-            <n-text>{{ siteStatusMap[site.status]?.text }}</n-text>
-          </n-flex>
-        </n-flex>
-        <!-- 每日数据 -->
-        <n-flex
-          v-if="site?.days?.length"
-          :size="2"
-          class="timeline"
-          justify="space-between"
-        >
-          <n-popover
-            v-for="(day, dayIndex) in site.days"
-            :key="day?.date || dayIndex"
-          >
-            <template #trigger>
-              <div
-                :style="{
-                  backgroundColor: `var(--${getDayStatus(day.percent)}-color)`,
-                }"
-                class="day"
-              />
-            </template>
-            <div class="day-data">
-              <n-text class="date" depth="3">
-                {{ day?.date ? formatTime(day.date) : $t("card.unknownDate") }}
-              </n-text>
-              <!-- 详细 -->
-              <n-text v-if="day?.percent >= 100">
-                {{ $t("card.percent", { percent: day?.percent }) }}
-              </n-text>
-              <n-text v-else-if="day?.percent > 0 && day?.percent < 100">
-                {{
-                  $t("card.percentData", {
-                    times: day?.down?.times,
-                    duration: formatDuration(day?.down?.duration),
-                    percent: day?.percent,
-                  })
-                }}
-              </n-text>
-              <n-text v-else>{{ $t("card.unknownData") }}</n-text>
-            </div>
-          </n-popover>
-        </n-flex>
-        <!-- 总结 -->
-        <n-flex class="summary" justify="space-between">
-          <n-text class="date" depth="3">
-            {{ formatTime(site?.days?.[0]?.date || 0) }}
-          </n-text>
-          <n-text v-if="site?.down?.times" depth="3">
-            {{
-              $t("card.summaryData", {
-                days: site?.days?.length,
-                times: site?.down?.times,
-                duration: formatDuration(site?.down?.duration),
-                percent: site?.percent,
-              })
-            }}
-          </n-text>
-          <n-text v-else depth="3">
-            {{
-              $t("card.summary", {
-                days: site?.days?.length,
-                percent: site?.percent,
-              })
-            }}
-          </n-text>
-          <n-text class="date" depth="3">{{ $t("meta.today") }}</n-text>
-        </n-flex>
-      </n-card>
-    </div>
-    <div
-      v-else
-      :style="{ '--color': `var(--${statusStore.siteStatus}-color)` }"
-      class="site-cards loading"
-    >
-      <n-card class="site-item" hoverable>
-        <Transition name="fade" mode="out-in">
-          <n-spin v-if="statusStore.siteStatus !== 'unknown'" />
-          <n-result
-            v-else
-            status="error"
-            :title="$t('card.error')"
-            :description="$t('card.errorText')"
-          >
-            <template #footer>
-              <n-button tertiary round @click="refresh">
-                {{ $t("meta.refresh") }}
-              </n-button>
-            </template>
-          </n-result>
-        </Transition>
-      </n-card>
-    </div>
-  </Transition>
-</template>
-
 <script setup lang="ts">
-import type { SiteStatusType, SiteType } from "~~/types/main";
+import type { MonitorInfo } from "~/types";
 
-const { t } = useI18n();
 const statusStore = useStatusStore();
+const { t } = useI18n();
 
-// 站点类型
-const siteStatusMap = computed(() => ({
-  0: { text: t("card.status.stop"), type: "unknown" },
-  1: { text: t("card.status.unknown"), type: "unknown" },
-  2: { text: t("card.status.normal"), type: "normal" },
-  8: { text: t("card.status.error"), type: "error" },
-  9: { text: t("card.status.down"), type: "error" },
-}));
-
-// 请求类型
-const siteTypeMap = computed(() => ({
-  1: { tag: "HTTP", text: t("card.type.HTTP") },
-  2: { tag: "KEYWORD", text: t("card.type.KEYWORD") },
-  3: { tag: "PING", text: t("card.type.PING") },
-  4: { tag: "PORT", text: t("card.type.PORT") },
-  5: { tag: "HEARTBEAT", text: t("card.type.HEARTBEAT") },
-}));
-
-// 全部站点数据
-const siteData = computed<SiteStatusType[] | undefined>(
-  () => statusStore.siteData?.data,
+// 监控数据
+const monitors = computed<MonitorInfo[]>(
+  () => statusStore.siteData?.monitors || [],
 );
 
-// 当天站点状态
-const getDayStatus = (percent: number): SiteType => {
-  if (percent >= 100) return "normal";
-  else if (percent >= 50 && percent < 100) return "warn";
-  else if (percent > 0 && percent < 50) return "error";
-  else return "unknown";
+// 按状态分组
+const sortedMonitors = computed(() => {
+  const list = [...monitors.value];
+  // 在线 > 警告 > 离线 > 未知
+  const order: Record<string, number> = {
+    normal: 0,
+    warn: 1,
+    error: 2,
+    unknown: 3,
+    loading: 4,
+  };
+  return list.sort(
+    (a, b) =>
+      (order[a.status || "unknown"] ?? 9) - (order[b.status || "unknown"] ?? 9),
+  );
+});
+
+// 状态文本
+const getStatusText = (status: string) => {
+  const map: Record<string, string> = {
+    normal: "✅ 在线",
+    error: "❌ 离线",
+    warn: "⚠️ 警告",
+    unknown: "❓ 未知",
+    loading: "⏳ 检测中",
+  };
+  return map[status] || "❓ 未知";
 };
 
-// 重试
-const refresh = async () => {
-  statusStore.$patch({
-    siteStatus: "loading",
-    siteData: undefined,
-  });
-  await getSiteData();
-};
-
-onMounted(getSiteData);
+// 状态点颜色
+const getStatusClass = (status: string) => `dot-${status || "unknown"}`;
 </script>
+
+<template>
+  <div class="site-cards">
+    <!-- 统计概览卡片 -->
+    <div class="overview-card glass-card">
+      <div class="overview-item">
+        <span class="overview-num text-pink-gradient">{{ monitors.length }}</span>
+        <span class="overview-label">总监控数</span>
+      </div>
+      <div class="overview-item">
+        <span class="overview-num text-pink-gradient">
+          {{ monitors.filter((m) => m.status === "normal").length }}
+        </span>
+        <span class="overview-label">在线</span>
+      </div>
+      <div class="overview-item">
+        <span class="overview-num" style="color: #ff6b8a;">
+          {{ monitors.filter((m) => m.status === "error").length }}
+        </span>
+        <span class="overview-label">离线</span>
+      </div>
+      <div class="overview-item">
+        <span class="overview-num text-pink-gradient">
+          {{
+            monitors.length > 0
+              ? (
+                  monitors.reduce((s, m) => s + (m.uptime || 0), 0) /
+                  monitors.length
+                ).toFixed(2) + "%"
+              : "-"
+          }}
+        </span>
+        <span class="overview-label">平均在线率</span>
+      </div>
+    </div>
+
+    <!-- 监控卡片列表 -->
+    <div class="cards-list">
+      <div
+        v-for="(monitor, index) in sortedMonitors"
+        :key="monitor.id"
+        class="monitor-card glass-card"
+        :style="{ animationDelay: `${index * 0.06}s` }"
+      >
+        <!-- 卡片头部 -->
+        <div class="card-header">
+          <div class="card-title-row">
+            <span class="status-dot" :class="getStatusClass(monitor.status)"></span>
+            <span class="card-title font-cheese">{{ monitor.name }}</span>
+          </div>
+          <span class="status-badge" :class="`badge-${monitor.status}`">
+            {{ getStatusText(monitor.status || "unknown") }}
+          </span>
+        </div>
+
+        <!-- 卡片内容 -->
+        <div class="card-body">
+          <div class="info-row">
+            <span class="info-label">在线率</span>
+            <span class="info-value text-pink-gradient">
+              {{ (monitor.uptime || 0).toFixed(2) }}%
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">响应时间</span>
+            <span class="info-value">{{ monitor.responsetime || "-" }} ms</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">监控类型</span>
+            <span class="info-value">{{ monitor.type || "-" }}</span>
+          </div>
+          <div v-if="monitor.url" class="info-row">
+            <span class="info-label">地址</span>
+            <span class="info-value url-text">{{ monitor.url }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 空状态 -->
+    <div v-if="monitors.length === 0" class="empty-state glass-card">
+      <div class="empty-icon">📡</div>
+      <p class="empty-text font-cheese">暂无监控数据</p>
+      <p class="empty-tip">请在 UptimeRobot 中添加监控项</p>
+    </div>
+  </div>
+</template>
 
 <style lang="scss" scoped>
 .site-cards {
+  padding: 20px 0;
+}
+
+/* 概览卡片 */
+.overview-card {
   display: flex;
-  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
   gap: 12px;
-  max-width: 900px;
-  margin: 30px auto 20px;
-  padding: 0 20px;
-  .site-item {
-    opacity: 0;
-    border-radius: 12px;
-    animation: float-up 0.5s forwards;
-    overflow: hidden;
-    .meta {
-      .site-name {
-        font-weight: bold;
-      }
-      .n-tag {
-        --n-height: 20px;
-        cursor: pointer;
-      }
-      .status {
-        .n-text {
-          color: var(--bg-color);
-        }
-        svg {
-          font-size: 22px;
-          margin-right: -4px;
-          color: var(--bg-color);
-        }
-      }
-      .point {
-        position: relative;
-        width: 14px;
-        height: 14px;
-        min-width: 14px;
-        background-color: var(--bg-color);
-        border-radius: 50%;
-        &::after {
-          content: "";
-          background-color: var(--bg-color);
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          top: 0;
-          left: 0;
-          border-radius: 50%;
-          opacity: 1;
-          z-index: -1;
-          animation: breathing 1.5s ease infinite;
-          transition: background-color 1s;
-        }
-      }
+
+  .overview-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+
+    .overview-num {
+      font-size: 1.6rem;
+      font-weight: 700;
+      font-family: var(--font-cheese);
     }
-    .timeline {
-      margin: 15px 0 10px;
-      .day {
-        height: 26px;
-        flex: 1;
-        border-radius: 25px;
-        background-color: var(--normal-color);
-        transition: transform 0.3s;
-        transform-origin: bottom;
-        cursor: pointer;
-        &:hover {
-          transform: scale(1.1);
-        }
-      }
-    }
-    .summary {
-      .date {
-        width: 100px;
-        &:last-child {
-          text-align: right;
-        }
-      }
-      .n-text {
-        font-size: 13px;
-      }
-    }
-  }
-  &.loading {
-    .site-item {
-      min-height: 200px;
-      :deep(.n-card__content) {
-        padding: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-    }
-    .n-spin-body {
-      --n-size: 40px;
-      --n-color: var(--color);
+
+    .overview-label {
+      font-size: 0.8rem;
+      color: #8a4a6a;
+      font-family: var(--font-body);
     }
   }
 }
-.day-data {
+
+/* 卡片列表 */
+.cards-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+/* 单个监控卡片 */
+.monitor-card {
+  padding: 18px 20px;
+  opacity: 0;
+  animation: floatUp 0.5s ease forwards;
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+
+    .card-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .card-title {
+        font-size: 1.1rem;
+        color: #d6336c;
+      }
+    }
+
+    .status-badge {
+      font-size: 0.75rem;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.5);
+      color: #7a2a4d;
+      border: 1px solid rgba(214, 51, 108, 0.15);
+
+      &.badge-normal  { background: rgba(59, 214, 114, 0.15); color: #1a8a4a; border-color: rgba(59, 214, 114, 0.3); }
+      &.badge-error   { background: rgba(255, 107, 138, 0.15); color: #c0392b; border-color: rgba(255, 107, 138, 0.3); }
+      &.badge-warn    { background: rgba(255, 179, 71, 0.15); color: #b8860b; border-color: rgba(255, 179, 71, 0.3); }
+      &.badge-unknown { background: rgba(168, 168, 192, 0.15); color: #555; border-color: rgba(168, 168, 192, 0.3); }
+    }
+  }
+
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .info-label {
+        font-size: 0.85rem;
+        color: #8a4a6a;
+        font-family: var(--font-body);
+      }
+
+      .info-value {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #5a2a4a;
+        font-family: var(--font-body);
+        font-variant-numeric: tabular-nums;
+
+        &.url-text {
+          max-width: 180px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          font-size: 0.8rem;
+          color: #a06080;
+        }
+      }
+    }
+  }
+
+  /* 状态点 */
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+
+    &.dot-normal  { background: var(--normal-color); box-shadow: 0 0 10px rgba(59, 214, 114, 0.5); }
+    &.dot-error   { background: var(--error-color);  box-shadow: 0 0 10px rgba(255, 107, 138, 0.5); }
+    &.dot-warn    { background: var(--warn-color);   box-shadow: 0 0 10px rgba(255, 179, 71, 0.5); }
+    &.dot-unknown { background: var(--unknown-color);box-shadow: 0 0 10px rgba(168, 168, 192, 0.4); }
+    &.dot-loading { background: var(--loading-color);box-shadow: 0 0 10px rgba(255, 154, 158, 0.5); }
+  }
+}
+
+/* 空状态 */
+.empty-state {
   display: flex;
   flex-direction: column;
-  .date {
-    font-size: 12px;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+
+  .empty-icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+  }
+
+  .empty-text {
+    font-size: 1.3rem;
+    color: #d6336c;
+    margin-bottom: 6px;
+  }
+
+  .empty-tip {
+    font-size: 0.85rem;
+    color: #8a4a6a;
+  }
+}
+
+/* 响应式 */
+@media (max-width: 640px) {
+  .cards-list {
+    grid-template-columns: 1fr;
+  }
+  .overview-card {
+    padding: 16px;
   }
 }
 </style>

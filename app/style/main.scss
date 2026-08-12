@@ -1,31 +1,54 @@
+/* ================================================================
+   site-status · 粉色毛玻璃 + 奶酪体手写风主题
+   ================================================================ */
+
 :root {
-  --main-bg-color: rgb(247, 247, 247);
-  --main-card-color: rgb(255, 255, 255);
-  --mian-border-color: rgba(255, 255, 255, 0.09);
-  --main-box-shadow: rgba(0, 0, 0, 0.1);
-  --cover-fill-color: 247, 247, 247;
-  // 背景
-  --loading-cover: radial-gradient(circle, #00c6ff, #0072ff, #00d2ff, #00b0ff);
-  --error-cover: radial-gradient(circle, #ff4b5c, #ff2a3b, #ff6f5e, #f15239);
-  --warn-cover: radial-gradient(circle, #ffa500, #ff8c00, #ff7f00, #ff6600);
-  --unknown-cover: radial-gradient(circle, #7f8c8d, #b5b5b5, #858c8d, #34495e);
-  --normal-cover: radial-gradient(circle, #2ecc71, #27ae60, #16a085, #1abc9c);
-  // 主颜色
-  --loading-color: #58d0ff;
-  --normal-color: #3bd672;
-  --error-color: #de484a;
-  --warn-color: #f39c12;
-  --unknown-color: #7f8c8d;
-  // 深色模式
-  &.dark-mode {
-    --main-bg-color: rgb(36, 36, 36);
-    --main-card-color: rgb(66, 66, 66);
-    --mian-border-color: rgba(0, 0, 0, 0.1);
-    --cover-fill-color: 36, 36, 36;
-    --cover-filter: brightness(80%);
-  }
+  /* ---- 粉色系基础色 ---- */
+  --main-bg-color: linear-gradient(135deg, #ffd6e8 0%, #ffe9f3 30%, #fbc8ff 70%, #e8d5ff 100%);
+  --main-card-color: rgba(255, 255, 255, 0.45);
+  --main-border-color: rgba(255, 255, 255, 0.55);
+  --main-box-shadow: rgba(214, 51, 108, 0.12);
+  --cover-fill-color: 255, 230, 243;
+
+  /* 背景渐变（保留原逻辑，换粉色） */
+  --loading-cover: radial-gradient(circle at 20% 50%, #ff9a9e, #fad0c4, #fbc2eb, #a18cd1);
+  --error-cover:   radial-gradient(circle at 20% 50%, #ff6b8a, #ff4b6e, #ff8a5c, #ff6f5e);
+  --warn-cover:    radial-gradient(circle at 20% 50%, #ffd93d, #ffb347, #ff8c42, #ff7f50);
+  --unknown-cover: radial-gradient(circle at 20% 50%, #b8b8d1, #d1d1e3, #a8a8c0, #8888a0);
+  --normal-cover:  radial-gradient(circle at 20% 50%, #a8edea, #fed6e3, #d4fc79, #96e6a1);
+
+  /* 状态色（微调更温柔） */
+  --loading-color: #ff9a9e;
+  --normal-color:  #3bd672;
+  --error-color:   #ff6b8a;
+  --warn-color:    #ffb347;
+  --unknown-color: #a8a8c0;
+
+  /* 奶酪体字体栈 */
+  --font-cheese: "ZCOOL KuaiLe", "Ma Shan Zheng", "PingFang SC", "Microsoft YaHei", cursive;
+  /* 正文圆润字体 */
+  --font-body: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+
+  /* 粉色文字渐变 */
+  --pink-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #ff8a5c 100%);
+  --pink-soft-gradient: linear-gradient(135deg, #ff9a9e 0%, #fbc2eb 100%);
 }
 
+/* ============================
+   深色模式（保留但粉化）
+   ============================ */
+.dark-mode {
+  --main-bg-color: linear-gradient(135deg, #2d1b3d 0%, #3a1a4a 30%, #4a1a5e 70%, #2a1a4e 100%);
+  --main-card-color: rgba(60, 40, 80, 0.45);
+  --main-border-color: rgba(255, 255, 255, 0.08);
+  --cover-fill-color: 45, 27, 61;
+  --main-box-shadow: rgba(0, 0, 0, 0.35);
+  --cover-filter: brightness(70%);
+}
+
+/* ============================
+   全局重置 & 基础
+   ============================ */
 * {
   margin: 0;
   padding: 0;
@@ -37,8 +60,21 @@
 body {
   width: 100%;
   height: 100%;
-  background-color: var(--main-bg-color);
+  font-family: var(--font-body);
+  color: #5a2a4a;
   overflow: hidden;
+  /* 粉色流动背景 */
+  background: linear-gradient(135deg, #ffd6e8 0%, #ffe9f3 25%, #fbc8ff 50%, #e8d5ff 75%, #ffd6e8 100%);
+  background-size: 400% 400%;
+  animation: pinkFlow 20s ease infinite;
+}
+
+@keyframes pinkFlow {
+  0%   { background-position: 0% 50%; }
+  25%  { background-position: 50% 100%; }
+  50%  { background-position: 100% 50%; }
+  75%  { background-position: 50% 0%; }
+  100% { background-position: 0% 50%; }
 }
 
 #nuxt-app {
@@ -47,135 +83,542 @@ body {
   min-height: 100vh;
 }
 
+/* ============================
+   奶酪体工具类
+   ============================ */
+.font-cheese {
+  font-family: var(--font-cheese);
+  letter-spacing: 0.5px;
+}
+
+/* ============================
+   粉色渐变文字
+   ============================ */
+.text-pink-gradient {
+  background: var(--pink-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+/* ============================
+   毛玻璃卡片（核心）
+   ============================ */
+.glass-card {
+  background: rgba(255, 255, 255, 0.42) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.55) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 8px 32px 0 rgba(214, 51, 108, 0.12),
+              inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 40px 0 rgba(214, 51, 108, 0.22),
+              inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+}
+
+/* 深色模式毛玻璃 */
+.dark-mode .glass-card {
+  background: rgba(60, 40, 80, 0.45) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35) !important;
+}
+
+/* ============================
+   全局组件覆盖
+   ============================ */
+
+/* Naive UI Card 毛玻璃化 */
+.n-card {
+  background: rgba(255, 255, 255, 0.42) !important;
+  backdrop-filter: blur(14px) saturate(170%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(170%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 6px 24px rgba(214, 51, 108, 0.10) !important;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  color: #5a2a4a !important;
+}
+.n-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 36px rgba(214, 51, 108, 0.18) !important;
+}
+.dark-mode .n-card {
+  background: rgba(60, 40, 80, 0.42) !important;
+  border-color: rgba(255, 255, 255, 0.07) !important;
+  color: #e8d5ff !important;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Card Header */
+.n-card-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
+  padding-bottom: 12px !important;
+}
+.dark-mode .n-card-header {
+  border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* ============================
+   SiteHeader 头部美化
+   ============================ */
+header {
+  position: relative;
+  height: 44vh;
+  width: 100%;
+  color: white;
+
+  .status-cover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: 400% !important;
+    background: var(--loading-cover);
+    z-index: -1;
+    transition: filter 0.3s;
+    filter: var(--cover-filter);
+    animation: gradient-flow 15s ease infinite;
+  }
+
+  .status-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px 20px 80px;
+
+    .site-status {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 20px;
+      height: 100%;
+
+      .status-text {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+
+        .point {
+          position: relative;
+          width: 40px;
+          height: 40px;
+          min-width: 40px;
+          background-color: #fff;
+          border-radius: 50%;
+          margin-right: 30px;
+          box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+
+          &::after {
+            content: "";
+            background-color: rgba(255, 255, 255, 0.5);
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            border-radius: 50%;
+            opacity: 1;
+            z-index: -1;
+            animation: breathing 1.5s ease infinite;
+            transition: background-color 1s;
+          }
+        }
+
+        .text {
+          display: flex;
+          flex-direction: column;
+
+          /* 标题 → 奶酪体 + 粉色渐变 */
+          .title {
+            font-size: 42px;
+            font-weight: bold;
+            font-family: var(--font-cheese);
+            background: linear-gradient(135deg, #fff 0%, #ffe0f0 50%, #ffd6e8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 12px rgba(255, 255, 255, 0.15);
+            letter-spacing: 1px;
+          }
+
+          .tip {
+            font-size: 14px;
+            opacity: 0.9;
+            font-family: var(--font-body);
+
+            .n-button {
+              --n-height: 22px;
+              margin-left: 10px;
+            }
+
+            span {
+              &:first-child {
+                &::after {
+                  content: "|";
+                  font-size: 12px;
+                  margin: 0 8px;
+                  opacity: 0.6;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /* 波浪区域 */
+  .waves-area {
+    width: 100%;
+    height: 60px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    pointer-events: none;
+
+    @media (max-width: 512px) {
+      height: 40px;
+    }
+
+    .parallax {
+      use {
+        animation: move-forever 25s cubic-bezier(0.55, 0.5, 0.45, 0.5) infinite;
+        transition: fill 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: transform, fill;
+      }
+
+      use:nth-child(1) {
+        animation-delay: -2s;
+        animation-duration: 7s;
+        fill: rgba(255, 230, 243, 0.741);
+      }
+      use:nth-child(2) {
+        animation-delay: -3s;
+        animation-duration: 10s;
+        fill: rgba(255, 230, 243, 0.51);
+      }
+      use:nth-child(3) {
+        animation-delay: -4s;
+        animation-duration: 13s;
+        fill: rgba(255, 230, 243, 0.212);
+      }
+      use:nth-child(4) {
+        animation-delay: -5s;
+        animation-duration: 20s;
+        fill: rgba(255, 214, 232, 0.95);
+      }
+    }
+  }
+}
+
+/* ============================
+   SiteCards 卡片区域
+   ============================ */
+.monitor-container,
+.site-cards,
+.cards-wrapper {
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* 单个监控卡片 */
+.monitor-item,
+.site-card,
+.status-item {
+  @extend .glass-card;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+
+  /* 卡片标题 → 奶酪体 */
+  .monitor-name,
+  .card-title,
+  .site-name {
+    font-family: var(--font-cheese);
+    font-size: 1.15rem;
+    color: #d6336c;
+    margin-bottom: 6px;
+  }
+
+  /* 在线率数字 → 粉色渐变 */
+  .uptime-value,
+  .monitor-uptime,
+  .stat-value {
+    background: var(--pink-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
+    font-size: 1.3rem;
+  }
+
+  /* 状态标签 */
+  .status-tag,
+  .monitor-status {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.5);
+    color: #d6336c;
+    border: 1px solid rgba(214, 51, 108, 0.2);
+  }
+
+  /* 状态点发光 */
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+
+    &.success { box-shadow: 0 0 10px var(--normal-color); }
+    &.error   { box-shadow: 0 0 10px var(--error-color); }
+    &.warning { box-shadow: 0 0 10px var(--warn-color); }
+    &.loading { box-shadow: 0 0 10px var(--loading-color); }
+  }
+}
+
+/* ============================
+   SiteNav 导航美化
+   ============================ */
+nav, .site-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+
+  .nav-item,
+  .n-button {
+    font-family: var(--font-cheese);
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.35) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    color: #d6336c !important;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.6) !important;
+      transform: translateY(-2px);
+    }
+  }
+}
+
+/* ============================
+   SiteFooter 底部美化
+   ============================ */
+footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px 60px;
+  margin-top: auto;
+  z-index: 100;
+
+  .text {
+    margin-top: 12px;
+
+    .n-p,
+    .n-text {
+      margin: 0;
+      font-size: 13px;
+      line-height: 26px;
+      color: #8a4a6a;
+      font-family: var(--font-body);
+    }
+
+    .n-text {
+      font-weight: bold;
+      cursor: pointer;
+      font-family: var(--font-cheese);
+      color: #d6336c;
+
+      &:hover {
+        color: #ff6b9d;
+      }
+    }
+  }
+}
+
+/* ============================
+   SiteLogin 登录页美化
+   ============================ */
+.login-container,
+.site-login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 40px 20px;
+
+  .login-card {
+    @extend .glass-card;
+    padding: 40px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+
+    .login-title {
+      font-family: var(--font-cheese);
+      font-size: 1.8rem;
+      color: #d6336c;
+      margin-bottom: 20px;
+    }
+
+    .n-input {
+      border-radius: 12px !important;
+      margin-bottom: 16px;
+    }
+
+    .n-button {
+      border-radius: 12px !important;
+      background: linear-gradient(135deg, #ff9a9e 0%, #fbc2eb 100%) !important;
+      color: white !important;
+      font-family: var(--font-cheese);
+      font-size: 1.1rem;
+      border: none !important;
+      box-shadow: 0 4px 16px rgba(214, 51, 108, 0.25);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(214, 51, 108, 0.35) !important;
+      }
+    }
+  }
+}
+
+/* ============================
+   Naive UI 组件粉色微调
+   ============================ */
+
+/* Button */
+.n-button--primary-type {
+  background: linear-gradient(135deg, #ff9a9e 0%, #fbc2eb 100%) !important;
+  border: none !important;
+  color: white !important;
+  box-shadow: 0 2px 12px rgba(214, 51, 108, 0.2);
+
+  &:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+  }
+}
+
+/* Input */
+.n-input {
+  background: rgba(255, 255, 255, 0.5) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  border-radius: 10px !important;
+
+  &:focus-within {
+    border-color: rgba(214, 51, 108, 0.4) !important;
+    box-shadow: 0 0 0 2px rgba(214, 51, 108, 0.1) !important;
+  }
+}
+
+/* Scrollbar */
 .n-scrollbar {
   .n-scrollbar-rail {
     right: 0 !important;
   }
   .n-scrollbar-rail__scrollbar {
     z-index: 9999 !important;
+    background: rgba(214, 51, 108, 0.3) !important;
+    border-radius: 4px;
   }
 }
 
+/* BackTop */
 .n-back-top {
   z-index: 9999;
-}
-/* ========================================
-   新增：毛玻璃 + 粉色渐变字体效果
-   (利用现有 CSS 变量，保持风格一致)
-   ======================================== */
-
-/* ----- 1. 毛玻璃效果类 ----- */
-.glass-card {
-  /* 利用你现有的背景色变量，增加透明度和毛玻璃效果 */
-  background: rgba(var(--cover-fill-color, 247, 247, 247), 0.6) !important;
-  backdrop-filter: blur(15px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(15px) saturate(180%) !important;
-  /* 边框使用现有边框颜色变量 */
-  border: 1px solid var(--mian-border-color, rgba(255, 255, 255, 0.2)) !important;
-  box-shadow: 0 8px 32px 0 var(--main-box-shadow, rgba(0, 0, 0, 0.1)) !important;
+  background: linear-gradient(135deg, #ff9a9e 0%, #fbc2eb 100%) !important;
+  color: white !important;
+  box-shadow: 0 4px 16px rgba(214, 51, 108, 0.3) !important;
 }
 
-/* 深色模式下的毛玻璃 (利用现有的深色背景变量) */
-.dark-mode .glass-card {
-  background: rgba(var(--cover-fill-color, 36, 36, 36), 0.5) !important;
+/* Modal / Dialog */
+.n-modal,
+.n-dialog {
+  background: rgba(255, 240, 248, 0.85) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 20px 60px rgba(214, 51, 108, 0.2) !important;
+}
+.dark-mode .n-modal,
+.dark-mode .n-dialog {
+  background: rgba(50, 30, 70, 0.85) !important;
   border-color: rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
 }
 
-/* ----- 2. 让所有卡片直接变成毛玻璃 (自动应用) ----- */
-/* 作用于项目中常见的卡片类，无需手动修改每个组件 */
-.n-card,
+/* Tag */
+.n-tag {
+  border-radius: 8px !important;
+  font-family: var(--font-body);
+}
+
+/* ============================
+   浮动动画（卡片入场）
+   ============================ */
 .monitor-item,
-.status-item,
-.list-item,
-.site-card {
-  background: rgba(var(--cover-fill-color, 247, 247, 247), 0.55) !important;
-  backdrop-filter: blur(12px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
-  border: 1px solid var(--mian-border-color, rgba(255, 255, 255, 0.15)) !important;
-  box-shadow: 0 8px 20px var(--main-box-shadow, rgba(0, 0, 0, 0.06)) !important;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.site-card,
+.status-item {
+  animation: floatUp 0.5s ease forwards;
+  opacity: 0;
 }
 
-/* 卡片悬停效果 (增强毛玻璃互动感) */
-.n-card:hover,
-.monitor-item:hover,
-.status-item:hover,
-.list-item:hover,
-.site-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 28px var(--main-box-shadow, rgba(0, 0, 0, 0.15)) !important;
+@keyframes floatUp {
+  0%   { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
-/* 深色模式下的卡片 */
-.dark-mode .n-card,
-.dark-mode .monitor-item,
-.dark-mode .status-item,
-.dark-mode .list-item,
-.dark-mode .site-card {
-  background: rgba(var(--cover-fill-color, 36, 36, 36), 0.6) !important;
-  border-color: rgba(255, 255, 255, 0.06) !important;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4) !important;
+/* 给每个卡片加延迟，形成瀑布入场 */
+.monitor-item:nth-child(1), .site-card:nth-child(1) { animation-delay: 0.05s; }
+.monitor-item:nth-child(2), .site-card:nth-child(2) { animation-delay: 0.1s; }
+.monitor-item:nth-child(3), .site-card:nth-child(3) { animation-delay: 0.15s; }
+.monitor-item:nth-child(4), .site-card:nth-child(4) { animation-delay: 0.2s; }
+.monitor-item:nth-child(5), .site-card:nth-child(5) { animation-delay: 0.25s; }
+.monitor-item:nth-child(n+6), .site-card:nth-child(n+6) { animation-delay: 0.3s; }
+
+/* ============================
+   响应式
+   ============================ */
+@media (max-width: 768px) {
+  header .status-content .site-status .status-text .text .title {
+    font-size: 28px;
+  }
+  .monitor-item,
+  .site-card {
+    padding: 14px 16px;
+  }
 }
 
-/* ----- 3. 粉色渐变字体类 ----- */
-.gradient-text-pink {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-weight: 700;
-}
+/* ============================
+   工具类
+   ============================ */
+.text-pink   { color: #d6336c !important; }
+.text-purple { color: #8b5cf6 !important; }
+.bg-glass    { @extend .glass-card; }
 
-/* 粉紫渐变 (更活泼) */
-.gradient-text-purple-pink {
-  background: linear-gradient(135deg, #4facfe 0%, #f093fb 50%, #f5576c 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-weight: 700;
-}
-
-/* ----- 4. 让页面主标题自动变粉 (直接应用) ----- */
-/* 如果你的页面标题有特定类名，可以在这里直接指定 */
-.page-title,
-.header-title,
-h1.title,
-.n-h1 {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  background-clip: text !important;
-  font-weight: 700 !important;
-}
-
-/* ----- 5. 让统计数字变粉 (如在线率) ----- */
-.status-number,
-.stat-value,
-.n-statistic-value {
-  background: linear-gradient(135deg, #4facfe 0%, #f093fb 50%, #f5576c 100%) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  background-clip: text !important;
-  font-weight: 700 !important;
-}
-
-/* ----- 6. 站点状态图标/圆点发光效果 (可选) ----- */
-.status-dot,
-.n-badge-dot {
-  box-shadow: 0 0 12px rgba(245, 87, 108, 0.4);
-}
-
-/* 不同状态的发光颜色 (利用你现有的状态颜色变量) */
-.status-dot.success,
-.n-badge-dot.success {
-  box-shadow: 0 0 12px var(--normal-color, #3bd672);
-}
-.status-dot.error,
-.n-badge-dot.error {
-  box-shadow: 0 0 12px var(--error-color, #de484a);
-}
-.status-dot.warning,
-.n-badge-dot.warning {
-  box-shadow: 0 0 12px var(--warn-color, #f39c12);
+main {
+  width: 100%;
+  height: 100%;
+  flex: 1;
 }

@@ -1,176 +1,142 @@
-<!-- 导航栏 -->
+<script setup lang="ts">
+const statusStore = useStatusStore();
+const { t } = useI18n();
+
+// 主题切换
+const toggleColorMode = () => {
+  const mode = statusStore.siteColorMode === "dark" ? "light" : "dark";
+  statusStore.siteColorMode = mode;
+  useColorMode().preference = mode;
+};
+
+// 语言切换
+const toggleLang = () => {
+  const lang = statusStore.siteLang === "zh-CN" ? "en-US" : "zh-CN";
+  statusStore.siteLang = lang;
+};
+</script>
+
 <template>
-  <nav
-    id="nav"
-    :class="{ scroll: statusStore.scrollTop > 0 }"
-    :style="{ color: iconColor }"
-  >
-    <div class="nav-content">
-      <span class="logo">{{ config.public.siteTitle }}</span>
-      <n-flex align="center" justify="end">
-        <!-- 明暗切换 -->
-        <Transition name="fade" mode="out-in">
-          <n-button
-            :key="themeIcon"
-            :focusable="false"
-            :color="iconColor"
-            size="large"
-            quaternary
-            circle
-            @click="toggleTheme"
-          >
-            <template #icon>
-              <Icon :name="themeIcon" />
-            </template>
-          </n-button>
-        </Transition>
-        <!-- 语言 -->
-        <n-popselect
-          v-model:value="statusStore.siteLang"
-          :options="langData"
-          trigger="click"
-        >
-          <n-button
-            :focusable="false"
-            :color="iconColor"
-            size="large"
-            quaternary
-            circle
-          >
-            <template #icon>
-              <Icon name="icon:language" />
-            </template>
-          </n-button>
-        </n-popselect>
-        <!-- 菜单 -->
-        <n-dropdown trigger="click" :options="navMenu">
-          <n-button
-            :focusable="false"
-            :color="iconColor"
-            size="large"
-            quaternary
-            circle
-          >
-            <template #icon>
-              <Icon name="icon:menu" />
-            </template>
-          </n-button>
-        </n-dropdown>
-      </n-flex>
+  <nav class="site-nav glass-card">
+    <!-- Logo / 标题 -->
+    <div class="nav-brand font-cheese" @click="scrollToTop">
+      <span class="brand-icon">🌸</span>
+      <span class="brand-text text-pink-gradient">{{ $t("nav.title") || "SiteStatus" }}</span>
+    </div>
+
+    <!-- 右侧操作 -->
+    <div class="nav-actions">
+      <!-- 语言切换 -->
+      <NButton
+        quaternary
+        circle
+        size="small"
+        @click="toggleLang"
+        class="nav-btn"
+        :title="$t('nav.toggleLang')"
+      >
+        <span class="btn-emoji">{{ statusStore.siteLang === "zh-CN" ? "🇨🇳" : "🇬🇧" }}</span>
+      </NButton>
+
+      <!-- 主题切换 -->
+      <NButton
+        quaternary
+        circle
+        size="small"
+        @click="toggleColorMode"
+        class="nav-btn"
+        :title="$t('nav.toggleTheme')"
+      >
+        <span class="btn-emoji">
+          {{ statusStore.siteColorMode === "dark" ? "🌙" : "☀️" }}
+        </span>
+      </NButton>
+
+      <!-- 刷新 -->
+      <NButton
+        quaternary
+        circle
+        size="small"
+        @click="getSiteData()"
+        class="nav-btn"
+        :title="$t('nav.refresh')"
+      >
+        <span class="btn-emoji">🔄</span>
+      </NButton>
     </div>
   </nav>
 </template>
 
-<script setup lang="ts">
-import { NIcon, type DropdownOption } from "naive-ui";
-import { Icon } from "#components";
-import { langData } from "~/assets/data/text";
-
-const { t } = useI18n();
-const colorMode = useColorMode();
-const config = useRuntimeConfig();
-const statusStore = useStatusStore();
-
-// 图标渲染
-const renderIcon = (icon: string) => () =>
-  h(NIcon, null, () => h(Icon, { name: icon }));
-
-// 导航栏菜单
-const navMenu = computed<DropdownOption[]>(() => [
-  {
-    key: "github",
-    label: "GitHub",
-    icon: renderIcon("icon:github"),
-    props: {
-      onClick: () => window.open("https://github.com/imsyy/site-status"),
-    },
-  },
-  {
-    key: "about",
-    label: t("nav.about"),
-    icon: renderIcon("icon:info"),
-  },
-  {
-    key: "logout",
-    label: t("nav.logout"),
-    show: statusStore.loginStatus,
-    icon: renderIcon("icon:logout"),
-    props: {
-      onClick: () => {
-        window.$dialog.warning({
-          title: "退出登录",
-          content: "确定要退出登录吗?",
-          positiveText: "确定",
-          negativeText: "取消",
-          transformOrigin: "center",
-          onPositiveClick: async () => {
-            const { code } = await $fetch("/api/logout", {
-              method: "POST",
-            });
-            if (code !== 200) {
-              window.$message.error("退出登录失败");
-              return;
-            }
-            window.$message.success("退出登录成功");
-            statusStore.loginStatus = false;
-            localStorage.removeItem("authToken");
-          },
-        });
-      },
-    },
-  },
-]);
-
-// 模式图标
-const themeIcon = computed(() => `icon:${colorMode.preference}-mode`);
-
-// 图标颜色
-const iconColor = computed<string | undefined>(() =>
-  statusStore.loginStatus && statusStore.scrollTop === 0 ? "#fff" : undefined,
-);
-
-// 切换明暗模式
-const toggleTheme = () => {
-  const themeList = ["light", "dark", "system"];
-  const themeValue =
-    themeList[(themeList.indexOf(colorMode.preference) + 1) % 3];
-  if (themeValue) colorMode.preference = themeValue;
-};
-</script>
-
 <style lang="scss" scoped>
-nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
+.site-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  margin: 0 auto 16px;
+  max-width: 900px;
+  border-radius: 14px;
+  position: sticky;
+  top: 12px;
   z-index: 100;
-  transition:
-    background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  .nav-content {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+
+  .nav-brand {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 30px 20px;
-    transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  .logo {
-    font-size: 20px;
-    font-weight: bold;
-    transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    @media (max-width: 512px) {
-      font-size: 16px;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 1.15rem;
+    transition: transform 0.2s;
+
+    &:hover {
+      transform: scale(1.03);
+    }
+
+    .brand-icon {
+      font-size: 1.3rem;
+    }
+
+    .brand-text {
+      font-weight: 700;
+      letter-spacing: 0.5px;
     }
   }
-  &.scroll {
-    background-color: var(--main-card-color);
-    border-bottom: solid 1px var(--mian-border-color);
-    box-shadow: 0px 0px 8px 4px var(--main-box-shadow);
-    .nav-content {
-      padding: 12px 20px;
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .nav-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50% !important;
+      transition: all 0.2s ease;
+      background: rgba(255, 255, 255, 0.3) !important;
+      border: 1px solid rgba(255, 255, 255, 0.35) !important;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.55) !important;
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 4px 12px rgba(214, 51, 108, 0.2);
+      }
+
+      .btn-emoji {
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .site-nav {
+    padding: 8px 14px;
+    margin-bottom: 12px;
+
+    .nav-brand {
+      font-size: 1rem;
     }
   }
 }
