@@ -32,33 +32,23 @@ export default defineNuxtConfig({
     "nuxt-lodash",
     "@nuxtjs/i18n",
   ].concat(siteConfig.platform === "cloudflare" ? "@nuxthub/core" : ""),
+
   // ssr
   ssr: false,
+
   // devtools
   devtools: { enabled: true },
+
   // app
   app: {
     rootAttrs: { id: "nuxt-app" },
-    // site-meta
     head: {
       title: siteConfig.siteTitle,
       meta: [
-        {
-          name: "description",
-          content: siteConfig.siteDescription,
-        },
-        {
-          name: "keywords",
-          content: siteConfig.siteKeywords,
-        },
-        {
-          name: "viewport",
-          content: "width=device-width, initial-scale=1.0",
-        },
-        {
-          name: "theme-color",
-          content: "#ffd6e8",
-        },
+        { name: "description", content: siteConfig.siteDescription },
+        { name: "keywords", content: siteConfig.siteKeywords },
+        { name: "viewport", content: "width=device-width, initial-scale=1.0" },
+        { name: "theme-color", content: "#ffd6e8" },
       ],
       link: [
         { rel: "icon", href: siteConfig.siteLogo },
@@ -81,10 +71,7 @@ export default defineNuxtConfig({
         },
         // manifest
         process.env.NODE_ENV !== "development"
-          ? {
-              rel: "manifest",
-              href: "/manifest.webmanifest",
-            }
+          ? { rel: "manifest", href: "/manifest.webmanifest" }
           : undefined,
       ],
       htmlAttrs: {
@@ -92,8 +79,10 @@ export default defineNuxtConfig({
       },
     },
   },
+
   // css
   css: ["~/style/main.scss", "~/style/animate.scss"],
+
   // env
   runtimeConfig: {
     apiUrl: process.env.API_URL || "https://api.uptimerobot.com/v2/",
@@ -102,9 +91,11 @@ export default defineNuxtConfig({
     siteSecretKey: process.env.SITE_SECRE_KEY || "site-status",
     public: siteConfig,
   },
+
   devServer: { port: 8566 },
   future: { compatibilityVersion: 4 },
   compatibilityDate: "2024-11-11",
+
   // vite
   vite: {
     plugins: [
@@ -132,7 +123,8 @@ export default defineNuxtConfig({
       },
     },
   },
-  // https://eslint.nuxt.com
+
+  // eslint
   eslint: {
     config: {
       stylistic: {
@@ -141,10 +133,19 @@ export default defineNuxtConfig({
       },
     },
   },
-  // i18n
+
+  // ✅【已修复】i18n（关键修复，防止 Cloudflare 500）
   i18n: {
+    strategy: "no_prefix",
+    defaultLocale: "zh-CN",
+    locales: [
+      { code: "zh-CN", name: "简体中文" },
+      { code: "en", name: "English" },
+    ],
+    legacy: false,
     vueI18n: "./lang/i18n.config.ts",
   },
+
   // icon
   icon: {
     mode: "svg",
@@ -156,6 +157,7 @@ export default defineNuxtConfig({
       },
     ],
   },
+
   // pwa
   pwa: {
     manifest: {
