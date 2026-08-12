@@ -3,8 +3,6 @@ import { NaiveUiResolver } from "unplugin-vue-components/resolvers";
 import Components from "unplugin-vue-components/vite";
 import pkg from "./package.json";
 
-// https://nuxt.com/docs/api/configuration/nuxt-config
-
 // site env
 const siteConfig = {
   siteTitle: process.env.SITE_TITLE || "IMSYY 站点监测",
@@ -30,16 +28,12 @@ export default defineNuxtConfig({
     "@nuxtjs/color-mode",
     "@vueuse/nuxt",
     "nuxt-lodash",
-    "@nuxtjs/i18n",
+    // ✅ 已移除 @nuxtjs/i18n（防止 Cloudflare 500）
   ].concat(siteConfig.platform === "cloudflare" ? "@nuxthub/core" : ""),
 
-  // ssr
   ssr: false,
-
-  // devtools
   devtools: { enabled: true },
 
-  // app
   app: {
     rootAttrs: { id: "nuxt-app" },
     head: {
@@ -62,14 +56,13 @@ export default defineNuxtConfig({
           href: "/images/icons/normal/maskable-icon-512x512.png",
           color: "#ffffff",
         },
-        // ✅ 奶酪体手写字体（Google Fonts 偷懒方案）
+        // ✅ 奶酪体
         { rel: "preconnect", href: "https://fonts.googleapis.com" },
         { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" },
         {
           rel: "stylesheet",
           href: "https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Ma+Shan+Zheng&display=swap",
         },
-        // manifest
         process.env.NODE_ENV !== "development"
           ? { rel: "manifest", href: "/manifest.webmanifest" }
           : undefined,
@@ -80,10 +73,8 @@ export default defineNuxtConfig({
     },
   },
 
-  // css
   css: ["~/style/main.scss", "~/style/animate.scss"],
 
-  // env
   runtimeConfig: {
     apiUrl: process.env.API_URL || "https://api.uptimerobot.com/v2/",
     apiKey: process.env.API_KEY,
@@ -96,7 +87,6 @@ export default defineNuxtConfig({
   future: { compatibilityVersion: 4 },
   compatibilityDate: "2024-11-11",
 
-  // vite
   vite: {
     plugins: [
       AutoImport({
@@ -124,7 +114,6 @@ export default defineNuxtConfig({
     },
   },
 
-  // eslint
   eslint: {
     config: {
       stylistic: {
@@ -134,19 +123,8 @@ export default defineNuxtConfig({
     },
   },
 
-  // ✅【已修复】i18n（关键修复，防止 Cloudflare 500）
-  i18n: {
-    strategy: "no_prefix",
-    defaultLocale: "zh-CN",
-    locales: [
-      { code: "zh-CN", name: "简体中文" },
-      { code: "en", name: "English" },
-    ],
-    legacy: false,
-    vueI18n: "./lang/i18n.config.ts",
-  },
+  // ✅ i18n 已彻底移除（不会再 500）
 
-  // icon
   icon: {
     mode: "svg",
     customCollections: [
@@ -158,7 +136,6 @@ export default defineNuxtConfig({
     ],
   },
 
-  // pwa
   pwa: {
     manifest: {
       name: siteConfig.siteTitle,
