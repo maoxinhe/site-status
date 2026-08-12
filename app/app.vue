@@ -1,21 +1,21 @@
 <script setup lang="ts">
+import { ref, watch, onMounted } from "vue";
 import { zhCN, dateZhCN } from "naive-ui";
 
 const { public: configPublic } = useRuntimeConfig();
 const config = useRuntimeConfig();
 const statusStore = useStatusStore();
 
-// ✅ 不再使用 useI18n
-// ✅ 直接定义 Naive UI 需要的 locale（中文）
+// ✅ Naive UI 中文 locale（不再使用 useI18n）
 const siteLang = {
   locale: zhCN,
   date: dateZhCN,
 };
 
-// 加载状态
+// ✅ 必须显式导入 ref
 const siteLoaded = ref(false);
 
-// 验证状态
+// 验证登录态
 const checkSite = async () => {
   try {
     const result = await $fetch("/api/check", { method: "POST" });
@@ -33,8 +33,7 @@ const siteScroll = (e: Event) => {
   statusStore.scrollTop = scrollTop;
 };
 
-// ✅ 不再调用 setLocale
-// ✅ 仅设置 html lang 属性
+// 仅同步 html lang
 const setSiteLang = (lang: string) => {
   useHead({ htmlAttrs: { lang } });
 };
@@ -48,13 +47,13 @@ watch(
     const error = statusStore.siteData?.status?.error || 0;
     const unknown = statusStore.siteData?.status?.unknown || 0;
     useHead({
-      title: isError ? `( ${error + unknown} ) ` + siteTitle : siteTitle,
+      title: isError ? `( ${error + unknown} ) ${siteTitle}` : siteTitle,
     });
     useFavicon(isError ? "/favicon-error.ico" : "/favicon.ico");
   }
 );
 
-// 语言更改（现在只是同步 html lang）
+// 语言同步
 watch(() => statusStore.siteLang, setSiteLang);
 
 onBeforeMount(checkSite);
@@ -77,35 +76,26 @@ onMounted(() => {
           <NNotificationProvider>
             <NLoadingBarProvider>
               <GlobalProvider>
+                <!-- ✅ 樱花花瓣（替换星星） -->
+                <div class="sakura" style="left: 5%; animation-duration: 10s"></div>
+                <div class="sakura" style="left: 15%; animation-duration: 12s; animation-delay: 2s"></div>
+                <div class="sakura" style="left: 30%; animation-duration: 14s; animation-delay: 1s"></div>
+                <div class="sakura" style="left: 50%; animation-duration: 11s; animation-delay: 3s"></div>
+                <div class="sakura" style="left: 70%; animation-duration: 13s; animation-delay: 0.5s"></div>
+                <div class="sakura" style="left: 85%; animation-duration: 9s; animation-delay: 1.5s"></div>
+                <div class="sakura" style="left: 95%; animation-duration: 15s; animation-delay: 2.5s"></div>
+
                 <div v-if="siteLoaded" class="site-wrapper">
-                  <!-- 背景装饰星星 -->
-                  <div class="bg-stars" aria-hidden="true">
-                    <span class="star" style="top: 8%; left: 12%; animation-delay: 0s;"></span>
-                    <span class="star" style="top: 15%; left: 80%; animation-delay: 1.2s;"></span>
-                    <span class="star" style="top: 35%; left: 25%; animation-delay: 0.6s;"></span>
-                    <span class="star" style="top: 55%; left: 70%; animation-delay: 2s;"></span>
-                    <span class="star" style="top: 72%; left: 40%; animation-delay: 0.8s;"></span>
-                    <span class="star" style="top: 25%; left: 55%; animation-delay: 1.5s;"></span>
-                    <span class="star" style="top: 65%; left: 90%; animation-delay: 0.3s;"></span>
-                    <span class="star" style="top: 85%; left: 15%; animation-delay: 1.8s;"></span>
-                  </div>
-
-                  <!-- 头部 -->
                   <SiteHeader />
-
-                  <!-- 主内容 -->
                   <main class="site-main" @scroll="siteScroll">
                     <SiteCards v-if="statusStore.loginStatus" />
                     <SiteLogin v-else />
                   </main>
-
-                  <!-- 底部 -->
                   <SiteFooter />
                 </div>
 
-                <!-- 加载中 -->
                 <div v-else class="site-loading">
-                  <div class="loading-heart">💗</div>
+                  <div class="loading-heart">🌸</div>
                   <p class="loading-text font-cheese">加载中...</p>
                 </div>
               </GlobalProvider>
@@ -119,61 +109,58 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .site-wrapper {
-  display: flex;
-  flex-direction: column;
   min-height: 100vh;
   position: relative;
   z-index: 1;
 }
 
 .site-main {
-  flex: 1;
-  width: 100%;
   max-width: 900px;
   margin: 0 auto;
   padding: 20px;
-  position: relative;
-  z-index: 2;
 }
 
-.bg-stars {
+/* ✅ 樱花花瓣 */
+.sakura {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: -10%;
+  width: 20px;
+  height: 20px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffb6c1'%3E%3Cpath d='M12 2C11 7 7 9 2 12c5 3 9 5 10 10 1-5 5-7 10-10-5-3-9-9-10-2z'/%3E%3C/svg%3E")
+    no-repeat center/contain;
+  opacity: 0.8;
+  animation: fall linear infinite;
   pointer-events: none;
   z-index: 0;
-  overflow: hidden;
+}
 
-  .star {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 50%;
-    animation: twinkle 3s ease-in-out infinite;
-    box-shadow: 0 0 6px rgba(255, 182, 213, 0.6);
+@keyframes fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  100% {
+    transform: translateY(120vh) rotate(360deg);
   }
 }
 
+/* 加载页 */
 .site-loading {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
+}
 
-  .loading-heart {
-    font-size: 3rem;
-    animation: heartBeat 1s ease infinite;
-  }
+.loading-heart {
+  font-size: 3rem;
+  animation: heartBeat 1s ease infinite;
+}
 
-  .loading-text {
-    margin-top: 16px;
-    font-size: 1.3rem;
-    color: #d6336c;
-  }
+.loading-text {
+  margin-top: 16px;
+  font-size: 1.3rem;
+  color: #d6336c;
 }
 
 @keyframes heartBeat {
@@ -184,10 +171,5 @@ onMounted(() => {
   50% {
     transform: scale(1.15);
   }
-}
-
-.dark-mode .bg-stars .star {
-  background: rgba(200, 180, 255, 0.6);
-  box-shadow: 0 0 8px rgba(180, 150, 255, 0.4);
 }
 </style>
