@@ -1,9 +1,16 @@
 <script setup lang="ts">
+import { zhCN, dateZhCN } from "naive-ui";
+
 const { public: configPublic } = useRuntimeConfig();
 const config = useRuntimeConfig();
 const statusStore = useStatusStore();
 
-const { setLocale } = useI18n();
+// ✅ 不再使用 useI18n
+// ✅ 直接定义 Naive UI 需要的 locale（中文）
+const siteLang = {
+  locale: zhCN,
+  date: dateZhCN,
+};
 
 // 加载状态
 const siteLoaded = ref(false);
@@ -12,7 +19,6 @@ const siteLoaded = ref(false);
 const checkSite = async () => {
   try {
     const result = await $fetch("/api/check", { method: "POST" });
-    // 更改登录状态
     statusStore.loginStatus = result.code === 200;
   } catch (error) {
     console.error("error in checkSite", error);
@@ -23,14 +29,13 @@ const checkSite = async () => {
 
 // 页面滚动
 const siteScroll = (e: Event) => {
-  // 滚动高度
   const scrollTop = (e.target as HTMLElement).scrollTop;
   statusStore.scrollTop = scrollTop;
 };
 
-// 更改站点语言
+// ✅ 不再调用 setLocale
+// ✅ 仅设置 html lang 属性
 const setSiteLang = (lang: string) => {
-  setLocale(lang);
   useHead({ htmlAttrs: { lang } });
 };
 
@@ -39,27 +44,23 @@ watch(
   () => statusStore.siteStatus,
   (status) => {
     const { siteTitle } = config.public;
-    // 错误数据
     const isError = status === "error" || status === "warn";
     const error = statusStore.siteData?.status?.error || 0;
     const unknown = statusStore.siteData?.status?.unknown || 0;
-    // 更改信息
     useHead({
-      // 更改标题
       title: isError ? `( ${error + unknown} ) ` + siteTitle : siteTitle,
     });
-    // 更改图标
     useFavicon(isError ? "/favicon-error.ico" : "/favicon.ico");
-  },
+  }
 );
 
-// 语言更改
+// 语言更改（现在只是同步 html lang）
 watch(() => statusStore.siteLang, setSiteLang);
 
 onBeforeMount(checkSite);
 
 onMounted(() => {
-  setSiteLang(statusStore.siteLang);
+  setSiteLang("zh-CN");
 });
 </script>
 
@@ -75,7 +76,6 @@ onMounted(() => {
         <NDialogProvider>
           <NNotificationProvider>
             <NLoadingBarProvider>
-              <!-- 全局 Provider -->
               <GlobalProvider>
                 <div v-if="siteLoaded" class="site-wrapper">
                   <!-- 背景装饰星星 -->
@@ -118,7 +118,6 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
-/* 站点包裹器 */
 .site-wrapper {
   display: flex;
   flex-direction: column;
@@ -127,7 +126,6 @@ onMounted(() => {
   z-index: 1;
 }
 
-/* 主内容区 */
 .site-main {
   flex: 1;
   width: 100%;
@@ -138,7 +136,6 @@ onMounted(() => {
   z-index: 2;
 }
 
-/* 背景星星装饰 */
 .bg-stars {
   position: fixed;
   top: 0;
@@ -160,7 +157,6 @@ onMounted(() => {
   }
 }
 
-/* 加载页 */
 .site-loading {
   display: flex;
   flex-direction: column;
@@ -181,11 +177,15 @@ onMounted(() => {
 }
 
 @keyframes heartBeat {
-  0%, 100% { transform: scale(1); }
-  50%      { transform: scale(1.15); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
 }
 
-/* 深色模式下的星星 */
 .dark-mode .bg-stars .star {
   background: rgba(200, 180, 255, 0.6);
   box-shadow: 0 0 8px rgba(180, 150, 255, 0.4);
