@@ -28,7 +28,7 @@ export default defineNuxtConfig({
     "@nuxtjs/color-mode",
     "@vueuse/nuxt",
     "nuxt-lodash",
-    // ✅ 已移除 @nuxtjs/i18n（防止 Cloudflare 500）
+    // ✅ 关键：彻底移除 @nuxtjs/i18n，解决 Cloudflare 500
   ].concat(siteConfig.platform === "cloudflare" ? "@nuxthub/core" : ""),
 
   ssr: false,
@@ -56,13 +56,14 @@ export default defineNuxtConfig({
           href: "/images/icons/normal/maskable-icon-512x512.png",
           color: "#ffffff",
         },
-        // ✅ 奶酪体
+        // ✅ 奶酪体手写字体
         { rel: "preconnect", href: "https://fonts.googleapis.com" },
         { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" },
         {
           rel: "stylesheet",
           href: "https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Ma+Shan+Zheng&display=swap",
         },
+        // manifest
         process.env.NODE_ENV !== "development"
           ? { rel: "manifest", href: "/manifest.webmanifest" }
           : undefined,
@@ -123,8 +124,6 @@ export default defineNuxtConfig({
     },
   },
 
-  // ✅ i18n 已彻底移除（不会再 500）
-
   icon: {
     mode: "svg",
     customCollections: [
@@ -143,27 +142,10 @@ export default defineNuxtConfig({
       description: siteConfig.siteDescription,
       theme_color: "#ffd6e8",
       icons: [
-        {
-          src: "/images/icons/normal/pwa-64x64.png",
-          sizes: "64x64",
-          type: "image/png",
-        },
-        {
-          src: "/images/icons/normal/pwa-192x192.png",
-          sizes: "192x192",
-          type: "image/png",
-        },
-        {
-          src: "/images/icons/normal/pwa-512x512.png",
-          sizes: "512x512",
-          type: "image/png",
-        },
-        {
-          src: "/images/icons/normal/maskable-icon-512x512.png",
-          sizes: "512x512",
-          type: "image/png",
-          purpose: "maskable",
-        },
+        { src: "/images/icons/normal/pwa-64x64.png", sizes: "64x64", type: "image/png" },
+        { src: "/images/icons/normal/pwa-192x192.png", sizes: "192x192", type: "image/png" },
+        { src: "/images/icons/normal/pwa-512x512.png", sizes: "512x512", type: "image/png" },
+        { src: "/images/icons/normal/maskable-icon-512x512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
       ],
     },
   },
